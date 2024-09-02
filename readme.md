@@ -1,26 +1,48 @@
-# geoJSON test API
+# Geo Test Project
+This is the test project for AIInfraSolutions. 
+It has some basic functionalities, such as a CRUD interface for a feature collection, and a map to display the features, as well as a page to edit the properties of the features.
+It is written in Django and uses PostGIS for the database, some Bootstrap and OpenLayers for the frontend, as well as Docker for deployment.
+
+
+## Disclaimer
+This code is not hardend for production use, it is just a test project.
+No proper user management is implemented, so the superuser is used for everything.
+The Django server runs with debug mode, which is not recommended for production.
+No Gunicorn or similar software is used, so the server is not production ready.
 
 ## Installation
-2. make the migrations (they are not run in the entrypoint, since I don't like to run them each time, so you have to run the manually)
+1. Clone the repository
+```bash
+git clone https://github.com/Valentinbist/mapTests.git
+```
+2. Change into the directory
+```bash
+cd mapTests
+```
+3. Build the docker container
+```bash
+docker compose build
+```
+4. Change the settings in dev.env
+5. Run the docker container
+```bash
+docker compose up
+```
+6. Make the migrations (they are not run in the entrypoint, since I don't like to run them each time, so you have to run the manually)
 ```bash
 docker compose run web python manage.py makemigrations
 docker compose run web python manage.py migrate
 ```
-3. make a superuser, since no proper user managaement is implemented yet
+7. Make a superuser, since no proper user managaement is implemented yet
 ```bash
 docker compose run web python manage.py createsuperuser
 ```
-
-#### Loading default dataset:
+8. Load the default GeoJSON file (if you want to)
 ```bash
 docker compose run web python manage.py load_geojson
 ```
 
-
 ## Todos
-- [ ] Add more tests
 - [ ] Add more documentation
-- [ ] Find out if i need to get the features one level up in tje json so then the fitler and the pages might work
-look in the copilot stuff and here https://medium.com/@dmitry.sobolevsky/feature-and-featurecollection-in-geojson-f36ec38ebdb1
 
 
