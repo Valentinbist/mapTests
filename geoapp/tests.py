@@ -1,11 +1,13 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 
 class JWTGenerationTest(TestCase):
     def setUp(self):
+        self.client = Client()
         # Create a test user
         self.user = User.objects.create_user(username='testuser', password='testpassword')
+
 
     def test_jwt_generation(self):
         # Generate JWT for the test user
@@ -35,6 +37,7 @@ class JWTGenerationTest(TestCase):
 # test the filter functionality
 class FilterTest(TestCase):
     def setUp(self):
+        self.client = Client()
         # Create a test user
         self.user = User.objects.create_user(username='testuser', password='testpassword')
         # Generate JWT for the test user
@@ -70,6 +73,7 @@ class FilterTest(TestCase):
 # test the CRUD functionality on the properties
 class CRUDTest(TestCase):
     def setUp(self):
+        self.client = Client()
         # Create a test user
         self.user = User.objects.create_user(username='testuser', password='testpassword')
         # Generate JWT for the test user
