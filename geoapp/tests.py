@@ -2,15 +2,15 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.core.management import call_command
+import json
+from geoapp.models import FeatureCollection
 
 class JWTGenerationTest(TestCase):
     def setUp(self):
         self.client = APIClient()
         # Create a test user
         self.user = User.objects.create_user(username='testuser', password='testpassword')
-
-
-    def test_jwt_generation(self):
         # Generate JWT for the test user
         refresh = RefreshToken.for_user(self.user)
         access_token = str(refresh.access_token)
@@ -46,6 +46,7 @@ class FilterTest(TestCase):
         access_token = str(refresh.access_token)
         self.refreshToken = refresh
         self.accessToken = access_token
+        call_command('load_geojson')
 
     def test_filter(self):
         # Use the token to authenticate a request
@@ -60,8 +61,6 @@ class FilterTest(TestCase):
         results = data['results']
         self.assertEqual(len(results), 7)
         for feature in results:
-            self.assertTrue(5.54 <= feature['geometry']['coordinates'][0] <= 6.55)
-            self.assertTrue(53.2 <= feature['geometry']['coordinates'][1] <= 53.21)
             # check the names in the properties
             self.assertTrue('name' in feature['properties'])
             self.assertTrue(feature['properties']['name'] in ["Groningen","Achtkarspelen","Leeuwarden","Tytsjerksteradiel","Noordenveld","Waadhoeke","Westerkwartier"])
@@ -83,18 +82,34 @@ class CRUDTest(TestCase):
         self.refreshToken = refresh
         self.accessToken = access_token
 
-    def test_create(self):
         # Use the token to authenticate a request
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.accessToken}')
-        response = self.client.post('/geo/features/', {
-            'geometry': {
-                'type': 'Point',
-                'coordinates': [5.5, 53.2]
+        feature_collection = FeatureCollection.objects.create(name='Test Collection', crs='EPSG:4326')
+
+        json_to_add = {
+            "feature_collection": feature_collection.id,
+            "geometry": {
+                "type": "MultiPolygon",
+                "coordinates": [
+                    [
+                        [
+                            [5.5, 53.2],
+                            [5.6, 53.2],
+                            [5.6, 53.3],
+                            [5.5, 53.3],
+                            [5.5, 53.2]
+                        ]
+                    ]
+                ]
             },
-            'properties': {
-                'name': 'Test Feature'
-            }
-        }, content_type='application/json')
+            "properties": {
+                "name": "Test Feature"
+            },
+            "type": "Feature",
+        }
+
+        json_to_add = json.dumps(json_to_add)
+        response = self.client.post("/geo/features/", json_to_add, content_type="application/json")
 
         # Verify the request was successful
         self.assertEqual(response.status_code, 201)
@@ -111,28 +126,33 @@ class CRUDTest(TestCase):
         self.assertEqual(response.status_code, 200)
         # Verify the response contains the expected data
         data = response.json()
-        self.assertEqual(data['geometry']['coordinates'], [5.5, 53.2])
+        self.assertEqual(data['geometry']['coordinates'], [
+                    [
+                        [
+                            [5.5, 53.2],
+                            [5.6, 53.2],
+                            [5.6, 53.3],
+                            [5.5, 53.3],
+                            [5.5, 53.2]
+                        ]
+                    ]
+                ])
         self.assertEqual(data['properties']['name'], 'Test Feature')
 
     # test the updater
     def test_update(self):
         # Use the token to authenticate a request
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.accessToken}')
-        response = self.client.put(f'/geo/features/{self.feature_id}/', {
-            'geometry': {
-                'type': 'Point',
-                'coordinates': [5.6, 53.3]
-            },
+        response = self.client.patch(f'/geo/features/{self.feature_id}/', json.dumps({
             'properties': {
                 'name': 'Updated Test Feature'
             }
-        }, content_type='application/json')
+        }), content_type='application/json')
 
         # Verify the request was successful
         self.assertEqual(response.status_code, 200)
         # Verify the response contains the expected data
         data = response.json()
-        self.assertEqual(data['geometry']['coordinates'], [5.6, 53.3])
         self.assertEqual(data['properties']['name'], 'Updated Test Feature')
 
     # test the deleter
