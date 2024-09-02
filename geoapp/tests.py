@@ -24,7 +24,7 @@ class JWTGenerationTest(TestCase):
     # use the token to authenticate a request
     def test_jwt_authentication(self):
         # Use the token to authenticate a request
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.accessToken}')
+        self.client.force_authenticate(user=self.user, token=self.accessToken)
         response = self.client.get('/geo/features/')
 
         # Verify the request was successful
@@ -45,7 +45,7 @@ class FilterTest(TestCase):
 
     def test_filter(self):
         # Use the token to authenticate a request
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.accessToken}')
+        self.client.force_authenticate(user=self.user, token=self.accessToken)
         response = self.client.get('/geo/features/?bbox=5.54,53.2,6.55,53.21')
 
         # Verify the request was successful
@@ -80,7 +80,7 @@ class CRUDTest(TestCase):
 
     def test_create(self):
         # Use the token to authenticate a request
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.accessToken}')
+        self.client.force_authenticate(user=self.user, token=self.accessToken)
         response = self.client.post('/geo/features/', {
             'geometry': {
                 'type': 'Point',
@@ -99,7 +99,7 @@ class CRUDTest(TestCase):
     # test the getter
     def test_read(self):
         # Use the token to authenticate a request
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.accessToken}')
+        self.client.force_authenticate(user=self.user, token=self.accessToken)
         response = self.client.get(f'/geo/features/{self.feature_id}/')
 
         # Verify the request was successful
@@ -112,7 +112,7 @@ class CRUDTest(TestCase):
     # test the updater
     def test_update(self):
         # Use the token to authenticate a request
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.accessToken}')
+        self.client.force_authenticate(user=self.user, token=self.accessToken)
         response = self.client.put(f'/geo/features/{self.feature_id}/', {
             'geometry': {
                 'type': 'Point',
@@ -133,7 +133,7 @@ class CRUDTest(TestCase):
     # test the deleter
     def test_delete(self):
         # Use the token to authenticate a request
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.accessToken}')
+        self.client.force_authenticate(user=self.user, token=self.accessToken)
         response = self.client.delete(f'/geo/features/{self.feature_id}/')
 
         # Verify the request was successful
