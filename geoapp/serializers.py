@@ -5,7 +5,7 @@ class FeatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feature
         geo_field = 'geometry'
-        fields = ('id', 'geometry', 'properties', 'type')
+        fields = ('id', 'geometry', 'properties', 'type', 'feature_collection')
 
 class FeatureCollectionSerializer(serializers.ModelSerializer):
     features = FeatureSerializer(many=True, read_only=True)
