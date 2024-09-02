@@ -6,12 +6,19 @@ from geoapp.serializers import FeatureCollectionSerializer, FeatureSerializer
 from geoapp.filters import FeatureFilter
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import render
+from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404
 
 def index(request):
     return render(request, 'index.html')
 
-def edit(request):
-    return render(request, 'edit.html')
+def edit(request, feature_id=None):
+    #print(f"Received feature_id: {feature_id}")  # Debugging: log the received feature_id
+    if feature_id:
+        feature = get_object_or_404(Feature, id=feature_id)
+    else:
+        feature = None
+    return render(request, 'edit.html', {'feature': feature})
 
 class FeatureCollectionPagination(PageNumberPagination):
     page_size = 2
@@ -40,3 +47,15 @@ class FeatureViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_class = FeatureFilter
     permission_classes = [IsAuthenticated]
+
+
+def list_features(request):
+    features = Feature.objects.all()
+    feature_list = [{
+        'id': feature.id,
+        'properties': feature.properties
+    } for feature in features]
+    return JsonResponse(feature_list, safe=False)
+
+def list_features_page(request):
+    return render(request, 'list.html')

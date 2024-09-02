@@ -7,6 +7,7 @@ from rest_framework_simplejwt.views import (
 )
 from django.urls import path
 from . import views
+from .views import list_features, list_features_page
 
 router = DefaultRouter()
 router.register(r'featurecollections', FeatureCollectionViewSet)
@@ -20,4 +21,7 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),  # Enable the default login
     path('gui/', views.index, name='index'),
     path('edit/', views.edit, name='edit'),
+    path('features_gui/', list_features, name='list_features'),
+    path('features_gui/list/', list_features_page, name='list_features_page'),
+    path('features_gui/edit/<int:feature_id>/', views.edit, name='edit_feature_page'),
 ]

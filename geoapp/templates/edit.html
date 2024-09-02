@@ -43,127 +43,147 @@
             <button type="submit" class="btn btn-primary">Save Changes</button>
         </form>
     </div>
-    <script>
-        document.getElementById('addPropertyButton').addEventListener('click', function() {
-            const propertyDiv = document.createElement('div');
-            propertyDiv.className = 'input-group mb-2';
-            propertyDiv.innerHTML = `
-                <input type="text" class="form-control" placeholder="Key">
-                <input type="text" class="form-control" placeholder="Value">
-                <div class="input-group-append">
-                    <button type="button" class="btn btn-danger remove-property">Remove</button>
-                </div>
-            `;
-            document.getElementById('additionalProperties').appendChild(propertyDiv);
-        });
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const url = window.location.href;
+        const urlParts = url.split('/');
+        const featureId = urlParts[urlParts.length - 2]; // Extract the feature_id from the URL
+        console.log('Full URL:', url); // Debugging: log the full URL
+        console.log('Extracted Feature ID:', featureId); // Debugging: log the extracted feature ID
+        if (featureId) {
+            document.getElementById('featureId').value = featureId;
+            console.log('Feature ID set in input field'); // Debugging: confirm the feature ID is set
+            document.getElementById('loadValuesButton').click(); // Automatically load values
+        } else {
+            console.log('Feature ID not found'); // Debugging: log if feature ID is not found
+        }
+    });
 
-        document.getElementById('additionalProperties').addEventListener('click', function(event) {
-            if (event.target.classList.contains('remove-property')) {
-                event.target.closest('.input-group').remove();
+    document.getElementById('addPropertyButton').addEventListener('click', function() {
+        const propertyDiv = document.createElement('div');
+        propertyDiv.className = 'input-group mb-2';
+        propertyDiv.innerHTML = `
+            <input type="text" class="form-control" placeholder="Key">
+            <input type="text" class="form-control" placeholder="Value">
+            <div class="input-group-append">
+                <button type="button" class="btn btn-danger remove-property">Remove</button>
+            </div>
+        `;
+        document.getElementById('additionalProperties').appendChild(propertyDiv);
+    });
+
+    document.getElementById('additionalProperties').addEventListener('click', function(event) {
+        if (event.target.classList.contains('remove-property')) {
+            event.target.closest('.input-group').remove();
+        }
+    });
+
+    document.getElementById('loadValuesButton').addEventListener('click', function() {
+        const featureId = document.getElementById('featureId').value;
+        const jwtToken = document.getElementById('jwtToken').value;
+
+        console.log('Load Values Button Clicked'); // Debugging: log button click
+        console.log('Feature ID:', featureId); // Debugging: log feature ID
+        console.log('JWT Token:', jwtToken); // Debugging: log JWT token
+
+        // Fetch the existing feature data
+        fetch(`/geo/features/${featureId}/`, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + jwtToken,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Fetched Data:', data); // Debugging: log fetched data
+            // Populate the form fields with the fetched data
+            document.getElementById('featureName').value = data.properties.name || '';
+            document.getElementById('featureColor').value = data.properties.color || '';
+
+            // Clear existing additional properties
+            document.getElementById('additionalProperties').innerHTML = '';
+
+            // Populate additional properties
+            for (const [key, value] of Object.entries(data.properties)) {
+                if (key !== 'name' && key !== 'color') {
+                    const propertyDiv = document.createElement('div');
+                    propertyDiv.className = 'input-group mb-2';
+                    propertyDiv.innerHTML = `
+                        <input type="text" class="form-control" value="${key}" placeholder="Key">
+                        <input type="text" class="form-control" value="${value}" placeholder="Value">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-danger remove-property">Remove</button>
+                        </div>
+                    `;
+                    document.getElementById('additionalProperties').appendChild(propertyDiv);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error loading feature data.');
+        });
+    });
+
+    document.getElementById('editForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        // Get form values
+        const featureId = document.getElementById('featureId').value;
+        const featureName = document.getElementById('featureName').value;
+        const featureColor = document.getElementById('featureColor').value;
+        const jwtToken = document.getElementById('jwtToken').value;
+
+        // Create the data object with name and color in properties
+        const data = {
+            properties: {
+                name: featureName,
+                color: featureColor
+            }
+        };
+
+        // Add additional properties
+        const additionalProperties = document.getElementById('additionalProperties').querySelectorAll('.input-group');
+        additionalProperties.forEach(propertyDiv => {
+            const key = propertyDiv.querySelector('input[placeholder="Key"]').value;
+            const value = propertyDiv.querySelector('input[placeholder="Value"]').value;
+            if (key && value) {
+                data.properties[key] = value;
             }
         });
 
-        document.getElementById('loadValuesButton').addEventListener('click', function() {
-            const featureId = document.getElementById('featureId').value;
-            const jwtToken = document.getElementById('jwtToken').value;
+        console.log('Request Body:', data); // Log the data to the console
 
-            // Fetch the existing feature data
-            fetch(`/geo/features/${featureId}/`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': 'Bearer ' + jwtToken,
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Populate the form fields with the fetched data
-                document.getElementById('featureName').value = data.properties.name || '';
-                document.getElementById('featureColor').value = data.properties.color || '';
-
-                // Clear existing additional properties
-                document.getElementById('additionalProperties').innerHTML = '';
-
-                // Populate additional properties
-                for (const [key, value] of Object.entries(data.properties)) {
-                    if (key !== 'name' && key !== 'color') {
-                        const propertyDiv = document.createElement('div');
-                        propertyDiv.className = 'input-group mb-2';
-                        propertyDiv.innerHTML = `
-                            <input type="text" class="form-control" value="${key}" placeholder="Key">
-                            <input type="text" class="form-control" value="${value}" placeholder="Value">
-                            <div class="input-group-append">
-                                <button type="button" class="btn btn-danger remove-property">Remove</button>
-                            </div>
-                        `;
-                        document.getElementById('additionalProperties').appendChild(propertyDiv);
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error loading feature data.');
-            });
+        // Make the PATCH request to update the feature
+        fetch(`/geo/features/${featureId}/`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': 'Bearer ' + jwtToken,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Success:', data);
+            alert('Feature updated successfully!');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error updating feature.');
         });
-
-        document.getElementById('editForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the default form submission
-
-            // Get form values
-            const featureId = document.getElementById('featureId').value;
-            const featureName = document.getElementById('featureName').value;
-            const featureColor = document.getElementById('featureColor').value;
-            const jwtToken = document.getElementById('jwtToken').value;
-
-            // Create the data object with name and color in properties
-            const data = {
-                properties: {
-                    name: featureName,
-                    color: featureColor
-                }
-            };
-
-            // Add additional properties
-            const additionalProperties = document.getElementById('additionalProperties').querySelectorAll('.input-group');
-            additionalProperties.forEach(propertyDiv => {
-                const key = propertyDiv.querySelector('input[placeholder="Key"]').value;
-                const value = propertyDiv.querySelector('input[placeholder="Value"]').value;
-                if (key && value) {
-                    data.properties[key] = value;
-                }
-            });
-
-            console.log('Request Body:', data); // Log the data to the console
-
-            // Make the PATCH request to update the feature
-            fetch(`/geo/features/${featureId}/`, {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': 'Bearer ' + jwtToken,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Success:', data);
-                alert('Feature updated successfully!');
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error updating feature.');
-            });
-        });
-    </script>
+    });
+</script>
 </body>
 </html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List of Features</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>List of Features</h1>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="featureList">
+                <!-- Feature rows will be populated here -->
+            </tbody>
+        </table>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('jwt'); // Retrieve the JWT from local storage
+
+            fetch('/geo/features_gui/', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const featureList = document.getElementById('featureList');
+                data.forEach(feature => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${feature.properties.name}</td>
+                        <td>
+                            <button class="btn btn-primary edit-button" data-id="${feature.id}">Edit</button>
+                        </td>
+                    `;
+                    featureList.appendChild(row);
+                });
+
+                document.querySelectorAll('.edit-button').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const featureId = this.getAttribute('data-id');
+                        window.location.href = `/geo/features_gui/edit/${featureId}/`;
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error loading features.');
+            });
+        });
+    </script>
+</body>
+</html>
