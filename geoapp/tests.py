@@ -38,7 +38,7 @@ class JWTGenerationTest(TestCase):
 # test the filter functionality
 class FilterTest(TestCase):
     def setUp(self):
-        self.client = Client()
+        self.client = APIClient()
         # Create a test user
         self.user = User.objects.create_user(username='testuser', password='testpassword')
         # Generate JWT for the test user
@@ -74,7 +74,7 @@ class FilterTest(TestCase):
 # test the CRUD functionality on the properties
 class CRUDTest(TestCase):
     def setUp(self):
-        self.client = Client()
+        self.client = APIClient()
         # Create a test user
         self.user = User.objects.create_user(username='testuser', password='testpassword')
         # Generate JWT for the test user
