@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenLayers Map</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol/ol.css">
+    <style>
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <input type="text" id="jwtToken" placeholder="Enter JWT Token">
+    <button onclick="loadMap()">Load Map</button>
+    <div id="map"></div>
+    <script src="https://cdn.jsdelivr.net/npm/ol@latest/dist/ol.js"></script>
+    <script>
+        // Function to fetch all pages of GeoJSON data from the API
+        async function fetchAllPages(url, jwtToken) {
+            let allResults = [];
+            let nextUrl = url;
+
+            // Loop to fetch data from paginated API
+            while (nextUrl) {
+                const response = await fetch(nextUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + jwtToken,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                allResults = allResults.concat(data.results);
+                nextUrl = data.next;
+            }
+
+            return allResults;
+        }
+
+        // Function to load the map and add GeoJSON features
+        function loadMap() {
+            const jwtToken = document.getElementById('jwtToken').value;
+
+            // Initialize the map
+            const map = new ol.Map({
+                target: 'map',
+                layers: [
+                    new ol.layer.Tile({
+                        source: new ol.source.OSM()
+                    })
+                ],
+                view: new ol.View({
+                    center: ol.proj.fromLonLat([6.707049494918126, 53.225599222224396]), // Center the map
+                    zoom: 10
+                })
+            });
+
+            // Fetch all GeoJSON data from the API with JWT token
+            fetchAllPages('/geo/features/', jwtToken)
+                .then(allResults => {
+                    console.log('All GeoJSON data:', allResults);
+
+                    // Extract the results array from the GeoJSON response
+                    const features = allResults.map(result => {
+                        console.log('GeoJSON feature:', result);
+
+                        // Extract and log the properties
+                        const properties = result.properties;
+                        console.log('Properties:', properties);
+
+                        // Ensure the result is a valid GeoJSON feature
+                        if (result.geometry && result.geometry.type && result.geometry.coordinates) {
+                            console.log('Valid GeoJSON feature:', result);
+                            const feature = new ol.format.GeoJSON().readFeature(result, {
+                                featureProjection: 'EPSG:3857'
+                            });
+
+                            // Set the name and color as properties on the feature
+                            feature.set('name', properties.name);
+                            feature.set('color', properties.color);
+
+                            return feature;
+                        } else {
+                            console.error('Invalid GeoJSON feature:', result);
+                            return null;
+                        }
+                    }).filter(feature => feature !== null);
+
+                    // Create a style function to style the features based on their properties
+                    const styleFunction = function(feature) {
+                        const color = feature.get('color') || 'rgba(255, 255, 255, 0.6)';
+                        return new ol.style.Style({
+                            fill: new ol.style.Fill({
+                                color: color
+                            }),
+                            stroke: new ol.style.Stroke({
+                                color: '#319FD3',
+                                width: 1
+                            }),
+                            text: new ol.style.Text({
+                                text: feature.get('name') || '',
+                                font: '12px Calibri,sans-serif',
+                                fill: new ol.style.Fill({
+                                    color: '#000'
+                                }),
+                                stroke: new ol.style.Stroke({
+                                    color: '#fff',
+                                    width: 3
+                                })
+                            })
+                        });
+                    };
+
+                    // Add GeoJSON data to the map
+                    const vectorSource = new ol.source.Vector({
+                        features: features
+                    });
+
+                    const vectorLayer = new ol.layer.Vector({
+                        source: vectorSource,
+                        style: styleFunction
+                    });
+
+                    map.addLayer(vectorLayer);
+                    console.log('Vector layer added to the map');
+
+                    // Add click event listener to the map
+                    map.on('click', function(event) {
+                        map.forEachFeatureAtPixel(event.pixel, function(feature) {
+                            const name = feature.get('name');
+                            alert('Feature Name: ' + name);
+                        });
+                    });
+                })
+                .catch(error => console.error('Error fetching GeoJSON data:', error));
+        }
+    </script>
+</body>
+</html>

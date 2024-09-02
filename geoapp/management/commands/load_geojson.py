@@ -20,10 +20,11 @@ class Command(BaseCommand):
             geometry = feature.get('geometry', {})
             coordinates = geometry.get('coordinates', [])
             multipolygon = MultiPolygon([Polygon(coords[0]) for coords in coordinates])
+            properties = feature.get('properties', {})
             Feature.objects.create(
                 feature_collection=feature_collection,
-                name=feature.get('properties', {}).get('name', 'Unnamed Feature'),
-                geometry=multipolygon
+                geometry=multipolygon,
+                properties=properties
             )
 
         self.stdout.write(self.style.SUCCESS('Successfully loaded GeoJSON data'))
