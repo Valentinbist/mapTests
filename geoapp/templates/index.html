@@ -130,8 +130,14 @@
                     // Add click event listener to the map
                     map.on('click', function(event) {
                         map.forEachFeatureAtPixel(event.pixel, function(feature) {
-                            const name = feature.get('name');
-                            alert('Feature Name: ' + name);
+                            const properties = feature.getProperties();
+                            let propertiesString = 'Feature Properties:\n';
+                            for (const key in properties) {
+                                if (properties.hasOwnProperty(key) && key !== 'geometry') {
+                                    propertiesString += `${key}: ${properties[key]}\n`;
+                                }
+                            }
+                            alert(propertiesString);
                         });
                     });
                 })
