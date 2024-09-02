@@ -18,11 +18,9 @@ jobs:
             - name: Checkout  # Step 2: Checkout the repository code
               uses: actions/checkout@v2  # Use the checkout action to checkout the code
 
-            - name: Test  # Step 3: Run the tests
-              # make migrations
-              run: docker-compose run --rm web sh -c "python3 manage.py makemigrations"  # Use Docker Compose to make migrations
-              # apply migrations
-              run: docker-compose run --rm web sh -c "python3 manage.py migrate"  # Use Docker Compose to apply migrations
-              # load test data
-              run: docker-compose run --rm web sh -c "python3 manage.py load_geojson.py"  # Use Docker Compose to load test data
-              run: docker-compose run --rm web sh -c "python3 manage.py test"  # Use Docker Compose to run the Django unit tests
+            - name: Test
+              run: |
+                docker-compose run --rm web sh -c "python3 manage.py makemigrations"
+                docker-compose run --rm web sh -c "python3 manage.py migrate"
+                docker-compose run --rm web sh -c "python3 manage.py load_geojson"
+                docker-compose run --rm web sh -c "python3 manage.py test"
