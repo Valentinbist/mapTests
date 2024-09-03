@@ -9,6 +9,9 @@
 <body>
     <div class="container mt-5">
         <h1>List of Features</h1>
+        <div class="form-group">
+            <input type="text" class="form-control" id="searchInput" placeholder="Search by name">
+        </div>
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -20,43 +23,82 @@
                 <!-- Feature rows will be populated here -->
             </tbody>
         </table>
+        <div class="d-flex justify-content-between">
+            <button class="btn btn-secondary" id="prevPageButton" disabled>Previous</button>
+            <span id="pageInfo"></span>
+            <button class="btn btn-secondary" id="nextPageButton" disabled>Next</button>
+        </div>
     </div>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const token = localStorage.getItem('jwt'); // Retrieve the JWT from local storage
+        let currentPage = 1;
+        let currentSearch = '';
 
-        fetch('/geo/features/', {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (!Array.isArray(data.results)) {
-                throw new Error('Expected an array but got: ' + JSON.stringify(data.results));
-            }
-            const featureList = document.getElementById('featureList');
-            data.results.forEach(feature => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${feature.properties.name}</td>
-                    <td>
-                        <button class="btn btn-primary edit-button" data-id="${feature.id}">Edit</button>
-                    </td>
-                `;
-                featureList.appendChild(row);
-            });
-            document.querySelectorAll('.edit-button').forEach(button => {
-                button.addEventListener('click', function() {
-                    const featureId = this.getAttribute('data-id');
-                    window.location.href = `/geo/edit/${featureId}/`;
+        function loadFeatures(page, search) {
+            fetch(`/geo/features/?page=${page}&name=${encodeURIComponent(search)}&page_size=20`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!Array.isArray(data.results)) {
+                    throw new Error('Expected an array but got: ' + JSON.stringify(data.results));
+                }
+                const featureList = document.getElementById('featureList');
+                featureList.innerHTML = ''; // Clear existing rows
+                data.results.forEach(feature => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${feature.properties.name}</td>
+                        <td>
+                            <button class="btn btn-primary edit-button" data-id="${feature.id}">Edit</button>
+                        </td>
+                    `;
+                    featureList.appendChild(row);
                 });
+                document.querySelectorAll('.edit-button').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const featureId = this.getAttribute('data-id');
+                        window.location.href = `/geo/edit/${featureId}/`;
+                    });
+                });
+
+                // Handle pagination buttons
+                document.getElementById('prevPageButton').disabled = !data.previous;
+                document.getElementById('nextPageButton').disabled = !data.next;
+
+                // Update page info
+                const totalPages = Math.ceil(data.count / 20);
+                document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error loading features.');
             });
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error loading features.');
+        }
+
+        document.getElementById('prevPageButton').addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                loadFeatures(currentPage, currentSearch);
+            }
         });
+
+        document.getElementById('nextPageButton').addEventListener('click', function() {
+            currentPage++;
+            loadFeatures(currentPage, currentSearch);
+        });
+
+        document.getElementById('searchInput').addEventListener('input', function() {
+            currentSearch = this.value;
+            currentPage = 1; // Reset to first page on new search
+            loadFeatures(currentPage, currentSearch);
+        });
+
+        // Initial load
+        loadFeatures(currentPage, currentSearch);
     });
     </script>
 </body>
