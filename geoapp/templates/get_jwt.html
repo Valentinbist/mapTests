@@ -20,7 +20,12 @@
             </div>
             <button type="submit" class="btn btn-primary">Get JWT</button>
         </form>
-        <button id="storeJwtButton" class="btn btn-success mt-3">Store JWT</button>
+        <div class="mt-3">
+            <h2>JWT Tokens</h2>
+            <p><strong>Access Token:</strong> <span id="accessToken"></span></p>
+            <p><strong>Refresh Token:</strong> <span id="refreshToken"></span></p>
+        </div>
+        <button class="btn btn-secondary mt-3" onclick="window.location.href='{% url 'start_page' %}'">Back to Start Page</button>
     </div>
     <script>
         document.getElementById('jwtForm').addEventListener('submit', function(event) {
@@ -41,22 +46,14 @@
                 console.log('Refresh Token:', data.refresh);
                 localStorage.setItem('jwt', data.access);
                 localStorage.setItem('refresh', data.refresh);
+                document.getElementById('accessToken').textContent = data.access;
+                document.getElementById('refreshToken').textContent = data.refresh;
                 alert('JWT and Refresh Token obtained and stored.');
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert('Error obtaining JWT.');
             });
-        });
-
-        document.getElementById('storeJwtButton').addEventListener('click', function() {
-            const jwt = localStorage.getItem('jwt');
-            if (jwt) {
-                console.log('Stored JWT:', jwt);
-                alert('JWT is already stored.');
-            } else {
-                alert('No JWT found to store.');
-            }
         });
     </script>
 </body>
