@@ -4,6 +4,7 @@ from geoapp.views import FeatureCollectionViewSet, FeatureViewSet
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
+    TokenVerifyView,
 )
 from django.urls import path
 from . import views
@@ -24,4 +25,6 @@ urlpatterns = [
     path('features_gui/list/', list_features_page, name='list_features_page'),
     path('edit/', views.edit, name='edit'),
     path('edit/<int:feature_id>/', views.edit, name='edit_feature_page'),
+    path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+
 ]

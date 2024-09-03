@@ -11,24 +11,55 @@
             top: 20px;
             right: 20px;
         }
+        .column {
+            margin-right: 50px; /* Increase space between columns */
+        }
     </style>
 </head>
 <body>
     <div class="container mt-5">
-        <button class="btn btn-secondary top-right-button" onclick="window.location.href='{% url 'get_jwt' %}'">"Login"</button>
+        <button id="loginButton" class="btn btn-secondary top-right-button" onclick="window.location.href='{% url 'get_jwt' %}'">Login</button>
+        <button id="loggedInButton" class="btn btn-secondary top-right-button" style="display: none;" disabled>Logged In</button>
         <h1>Welcome to the Geo Test Project</h1>
-        <div class="btn-group-vertical mt-3">
-            <h2>GUI Components</h2>
-            <button class="btn btn-primary" onclick="window.location.href='{% url 'gui_map' %}'">Map</button>
-            <button class="btn btn-primary" onclick="window.location.href='{% url 'list_features_page' %}'">List of Features</button>
-            <button class="btn btn-primary" onclick="window.location.href='{% url 'edit' %}'">Edit Feature</button>
-        </div>
-        <div class="btn-group-vertical mt-3">
-            <h2>Backend Components</h2>
-            <button class="btn btn-secondary" onclick="window.location.href='{% url 'token_obtain_pair' %}'">Get JWT</button>
-            <button class="btn btn-secondary" onclick="window.location.href='{% url 'token_refresh' %}'">Refresh JWT</button>
-            <button class="btn btn-secondary" onclick="window.location.href='/geo/'">API Root</button>
+        <p>This project provides various GUI and backend components to interact with geographical data. Use the buttons below to navigate through the different features. Also, there is a login, to get the JWT and store it in your Browser. Otherwise, no data will load. The backend components are only temporarily accessable via the frontend, as frontent features for e.g. for the CRUD featurecollection and the JWT refresh are missing.</p>
+        <div class="row">
+            <div class="col-md-6 column">
+                <h2>GUI Components</h2>
+                <button class="btn btn-primary" onclick="window.location.href='{% url 'gui_map' %}'">Map</button>
+                <button class="btn btn-primary" onclick="window.location.href='{% url 'list_features_page' %}'">List of Features</button>
+                <button class="btn btn-primary" onclick="window.location.href='{% url 'edit' %}'">Edit Feature</button>
+            </div>
+            <div class="col-md-6 column">
+                <h2>Backend Components</h2>
+                <button class="btn btn-secondary" onclick="window.location.href='{% url 'token_obtain_pair' %}'">Get JWT</button>
+                <button class="btn btn-secondary" onclick="window.location.href='{% url 'token_refresh' %}'">Refresh JWT</button>
+                <button class="btn btn-secondary" onclick="window.location.href='/geo/'">API Root</button>
+            </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const jwt = localStorage.getItem('jwt');
+            if (jwt) {
+                fetch('/geo/token/verify/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token: jwt })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code !== 'token_not_valid') {
+                        document.getElementById('loginButton').style.display = 'none';
+                        document.getElementById('loggedInButton').style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        });
+    </script>
 </body>
 </html>
