@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start Page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .top-right-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <button class="btn btn-secondary top-right-button" onclick="window.location.href='{% url 'get_jwt' %}'">"Login"</button>
+        <h1>Welcome to the Geo Test Project</h1>
+        <div class="btn-group-vertical mt-3">
+            <h2>GUI Components</h2>
+            <button class="btn btn-primary" onclick="window.location.href='{% url 'gui_map' %}'">Map</button>
+            <button class="btn btn-primary" onclick="window.location.href='{% url 'list_features_page' %}'">List of Features</button>
+            <button class="btn btn-primary" onclick="window.location.href='{% url 'edit' %}'">Edit Feature</button>
+        </div>
+        <div class="btn-group-vertical mt-3">
+            <h2>Backend Components</h2>
+            <button class="btn btn-secondary" onclick="window.location.href='{% url 'token_obtain_pair' %}'">Get JWT</button>
+            <button class="btn btn-secondary" onclick="window.location.href='{% url 'token_refresh' %}'">Refresh JWT</button>
+            <button class="btn btn-secondary" onclick="window.location.href='/geo/'">API Root</button>
+        </div>
+    </div>
+</body>
+</html>

@@ -12,6 +12,9 @@ from django.shortcuts import render, get_object_or_404
 def gui_map(request):
     return render(request, 'map.html')
 
+def start_page(request):
+    return render(request, 'start.html')
+
 def edit(request, feature_id=None):
     #print(f"Received feature_id: {feature_id}")  # Debugging: log the received feature_id
     if feature_id:

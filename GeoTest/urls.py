@@ -18,8 +18,10 @@ from django.contrib import admin
 from django.urls import path
 from django.contrib import admin
 from django.urls import path, include
+from geoapp.views import start_page
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('geo/', include('geoapp.urls')),
+    path('', start_page, name='start_page'),
 ]
