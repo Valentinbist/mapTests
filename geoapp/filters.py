@@ -10,10 +10,11 @@ class FeatureFilter(django_filters.FilterSet):
         model = Feature
         fields = ['name', 'bbox']
 
-    def filter_bbox(self, queryset, value):
+    def filter_bbox(self, queryset, name, value):
         """
         Filter the queryset by a bounding box.
         :param queryset: Comes from the view
+        :param name: The name of the bbox parameter, e.g. 'bbox'
         :param value: The value of the bbox parameter, e.g. '4.0,52.0,5.0,53.0'
         :return: A filtered queryset
         """
