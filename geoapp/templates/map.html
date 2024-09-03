@@ -76,9 +76,10 @@
                                 featureProjection: 'EPSG:3857'
                             });
 
-                            // Set the name and color as properties on the feature
+                            // Set the name, color, and ID as properties on the feature
                             feature.set('name', properties.name);
                             feature.set('color', properties.color);
+                            feature.set('id', result.id);
 
                             return feature;
                         } else {
@@ -128,14 +129,10 @@
                     // Add click event listener to the map
                     map.on('click', function(event) {
                         map.forEachFeatureAtPixel(event.pixel, function(feature) {
-                            const properties = feature.getProperties();
-                            let propertiesString = 'Feature Properties:\n';
-                            for (const key in properties) {
-                                if (properties.hasOwnProperty(key) && key !== 'geometry') {
-                                    propertiesString += `${key}: ${properties[key]}\n`;
-                                }
+                            const featureId = feature.get('id');
+                            if (featureId) {
+                                window.location.href = `/geo/edit/${featureId}/`;
                             }
-                            alert(propertiesString);
                         });
                     });
                 })
