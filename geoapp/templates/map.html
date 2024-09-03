@@ -10,10 +10,19 @@
             width: 100%;
             height: 100vh;
         }
+        .tooltip {
+            position: absolute;
+            background-color: white;
+            border: 1px solid black;
+            padding: 5px;
+            display: none;
+            pointer-events: none; /* Ensure the tooltip does not capture mouse events */
+        }
     </style>
 </head>
 <body>
     <div id="map"></div>
+    <div id="tooltip" class="tooltip"></div>
     <script src="https://cdn.jsdelivr.net/npm/ol@latest/dist/ol.js"></script>
     <script>
         // Function to fetch all pages of GeoJSON data from the API
@@ -125,6 +134,31 @@
 
                     map.addLayer(vectorLayer);
                     console.log('Vector layer added to the map');
+
+                    // Add hover event listener to the map
+                    const tooltip = document.getElementById('tooltip');
+                    map.on('pointermove', function(event) {
+                        const pixel = map.getEventPixel(event.originalEvent);
+                        const feature = map.forEachFeatureAtPixel(pixel, function(feature) {
+                            return feature;
+                        });
+
+                        if (feature) {
+                            const properties = feature.getProperties();
+                            let propertiesString = 'Feature Properties:<br>';
+                            for (const key in properties) {
+                                if (properties.hasOwnProperty(key) && key !== 'geometry') {
+                                    propertiesString += `${key}: ${properties[key]}<br>`;
+                                }
+                            }
+                            tooltip.innerHTML = propertiesString;
+                            tooltip.style.display = 'block';
+                            tooltip.style.left = (event.originalEvent.pageX + 10) + 'px'; // Offset by 10px
+                            tooltip.style.top = (event.originalEvent.pageY + 10) + 'px'; // Offset by 10px
+                        } else {
+                            tooltip.style.display = 'none';
+                        }
+                    });
 
                     // Add click event listener to the map
                     map.on('click', function(event) {
