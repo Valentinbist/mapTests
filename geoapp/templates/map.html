@@ -68,19 +68,15 @@
             // Fetch all GeoJSON data from the API with JWT token
             fetchAllPages('/geo/features/', jwtToken)
                 .then(allResults => {
-                    console.log('All GeoJSON data:', allResults);
 
                     // Extract the results array from the GeoJSON response
                     const features = allResults.map(result => {
-                        console.log('GeoJSON feature:', result);
 
-                        // Extract and log the properties
+                        // Extract the properties
                         const properties = result.properties;
-                        console.log('Properties:', properties);
 
                         // Ensure the result is a valid GeoJSON feature
                         if (result.geometry && result.geometry.type && result.geometry.coordinates) {
-                            console.log('Valid GeoJSON feature:', result);
                             const feature = new ol.format.GeoJSON().readFeature(result, {
                                 featureProjection: 'EPSG:3857'
                             });
@@ -92,7 +88,6 @@
 
                             return feature;
                         } else {
-                            console.error('Invalid GeoJSON feature:', result);
                             return null;
                         }
                     }).filter(feature => feature !== null);
@@ -133,7 +128,6 @@
                     });
 
                     map.addLayer(vectorLayer);
-                    console.log('Vector layer added to the map');
 
                     // Add hover event listener to the map
                     const tooltip = document.getElementById('tooltip');
@@ -170,8 +164,8 @@
                         });
                     });
                 })
-                .catch(error => console.error('Error fetching GeoJSON data:', error));
-        }
+                        .catch(error => {});
+                }
 
         // Load the map on page load
         document.addEventListener('DOMContentLoaded', loadMap);

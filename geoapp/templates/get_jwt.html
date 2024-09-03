@@ -42,8 +42,6 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log('JWT:', data.access);
-                console.log('Refresh Token:', data.refresh);
                 localStorage.setItem('jwt', data.access);
                 localStorage.setItem('refresh', data.refresh);
                 document.getElementById('accessToken').textContent = data.access;
@@ -51,7 +49,6 @@
                 alert('JWT and Refresh Token obtained and stored.');
             })
             .catch(error => {
-                console.error('Error:', error);
                 alert('Error obtaining JWT.');
             });
         });

@@ -44,14 +44,9 @@
         const url = window.location.href;
         const urlParts = url.split('/');
         const featureId = urlParts[urlParts.length - 2]; // Extract the feature_id from the URL
-        console.log('Full URL:', url); // Debugging: log the full URL
-        console.log('Extracted Feature ID:', featureId); // Debugging: log the extracted feature ID
         if (featureId && !isNaN(featureId)) {
             document.getElementById('featureId').value = featureId;
-            console.log('Feature ID set in input field'); // Debugging: confirm the feature ID is set
             document.getElementById('loadValuesButton').click(); // Automatically load values
-        } else {
-            console.log('Feature ID not found or invalid'); // Debugging: log if feature ID is not found or invalid
         }
     });
 
@@ -78,10 +73,6 @@
         const featureId = document.getElementById('featureId').value;
         const jwtToken = localStorage.getItem('jwt'); // Load JWT from local storage
 
-        console.log('Load Values Button Clicked'); // Debugging: log button click
-        console.log('Feature ID:', featureId); // Debugging: log feature ID
-        console.log('JWT Token:', jwtToken); // Debugging: log JWT token
-
         // Fetch the existing feature data
         fetch(`/geo/features/${featureId}/`, {
             method: 'GET',
@@ -97,8 +88,7 @@
             return response.json();
         })
         .then(data => {
-            console.log('Fetched Data:', data); // Debugging: log fetched data
-            // Populate the form fields with the fetched data
+             // Populate the form fields with the fetched data
             document.getElementById('featureName').value = data.properties.name || '';
             document.getElementById('featureColor').value = data.properties.color || '';
 
@@ -122,7 +112,6 @@
             }
         })
         .catch(error => {
-            console.error('Error:', error);
             alert('Error loading feature data.');
         });
     });
@@ -154,8 +143,6 @@
             }
         });
 
-        console.log('Request Body:', data); // Log the data to the console
-
         // Make the PATCH request to update the feature
         fetch(`/geo/features/${featureId}/`, {
             method: 'PATCH',
@@ -172,11 +159,9 @@
             return response.json();
         })
         .then(data => {
-            console.log('Success:', data);
             alert('Feature updated successfully!');
         })
         .catch(error => {
-            console.error('Error:', error);
             alert('Error updating feature.');
         });
     });
