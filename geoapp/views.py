@@ -36,7 +36,6 @@ class FeatureCollectionViewSet(viewsets.ModelViewSet):
     serializer_class = FeatureCollectionSerializer
     pagination_class = FeatureCollectionPagination
     filter_backends = [DjangoFilterBackend]
-    filterset_class = FeatureFilter
     permission_classes = [IsAuthenticated]
 
 
