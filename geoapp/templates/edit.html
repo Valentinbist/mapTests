@@ -24,10 +24,6 @@
                 <input type="text" class="form-control" id="featureColor" placeholder="Enter Feature Color">
             </div>
             <div class="form-group">
-                <label for="jwtToken">JWT Token</label>
-                <input type="text" class="form-control" id="jwtToken" placeholder="Enter JWT Token" required>
-            </div>
-            <div class="form-group">
                 <label for="additionalProperties">Additional Properties</label>
                 <div id="additionalProperties">
                     <div class="input-group mb-2">
@@ -50,12 +46,12 @@
         const featureId = urlParts[urlParts.length - 2]; // Extract the feature_id from the URL
         console.log('Full URL:', url); // Debugging: log the full URL
         console.log('Extracted Feature ID:', featureId); // Debugging: log the extracted feature ID
-        if (featureId) {
+        if (featureId && !isNaN(featureId)) {
             document.getElementById('featureId').value = featureId;
             console.log('Feature ID set in input field'); // Debugging: confirm the feature ID is set
             document.getElementById('loadValuesButton').click(); // Automatically load values
         } else {
-            console.log('Feature ID not found'); // Debugging: log if feature ID is not found
+            console.log('Feature ID not found or invalid'); // Debugging: log if feature ID is not found or invalid
         }
     });
 
@@ -80,7 +76,7 @@
 
     document.getElementById('loadValuesButton').addEventListener('click', function() {
         const featureId = document.getElementById('featureId').value;
-        const jwtToken = document.getElementById('jwtToken').value;
+        const jwtToken = localStorage.getItem('jwt'); // Load JWT from local storage
 
         console.log('Load Values Button Clicked'); // Debugging: log button click
         console.log('Feature ID:', featureId); // Debugging: log feature ID
@@ -138,7 +134,7 @@
         const featureId = document.getElementById('featureId').value;
         const featureName = document.getElementById('featureName').value;
         const featureColor = document.getElementById('featureColor').value;
-        const jwtToken = document.getElementById('jwtToken').value;
+        const jwtToken = localStorage.getItem('jwt'); // Load JWT from local storage
 
         // Create the data object with name and color in properties
         const data = {

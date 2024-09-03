@@ -9,8 +9,8 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 
-def index(request):
-    return render(request, 'index.html')
+def gui_map(request):
+    return render(request, 'map.html')
 
 def edit(request, feature_id=None):
     #print(f"Received feature_id: {feature_id}")  # Debugging: log the received feature_id
@@ -49,13 +49,8 @@ class FeatureViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
 
-def list_features(request):
-    features = Feature.objects.all()
-    feature_list = [{
-        'id': feature.id,
-        'properties': feature.properties
-    } for feature in features]
-    return JsonResponse(feature_list, safe=False)
+def get_jwt(request):
+    return render(request, 'get_jwt.html')
 
 def list_features_page(request):
     return render(request, 'list.html')

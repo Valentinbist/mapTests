@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get JWT</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Get JWT</h1>
+        <form id="jwtForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" class="form-control" id="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Get JWT</button>
+        </form>
+        <button id="storeJwtButton" class="btn btn-success mt-3">Store JWT</button>
+    </div>
+    <script>
+        document.getElementById('jwtForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            fetch('/geo/token/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('JWT:', data.access);
+                console.log('Refresh Token:', data.refresh);
+                localStorage.setItem('jwt', data.access);
+                localStorage.setItem('refresh', data.refresh);
+                alert('JWT and Refresh Token obtained and stored.');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error obtaining JWT.');
+            });
+        });
+
+        document.getElementById('storeJwtButton').addEventListener('click', function() {
+            const jwt = localStorage.getItem('jwt');
+            if (jwt) {
+                console.log('Stored JWT:', jwt);
+                alert('JWT is already stored.');
+            } else {
+                alert('No JWT found to store.');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -22,40 +22,42 @@
         </table>
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const token = localStorage.getItem('jwt'); // Retrieve the JWT from local storage
+    document.addEventListener('DOMContentLoaded', function() {
+        const token = localStorage.getItem('jwt'); // Retrieve the JWT from local storage
 
-            fetch('/geo/features_gui/', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                const featureList = document.getElementById('featureList');
-                data.forEach(feature => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${feature.properties.name}</td>
-                        <td>
-                            <button class="btn btn-primary edit-button" data-id="${feature.id}">Edit</button>
-                        </td>
-                    `;
-                    featureList.appendChild(row);
-                });
-
-                document.querySelectorAll('.edit-button').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const featureId = this.getAttribute('data-id');
-                        window.location.href = `/geo/features_gui/edit/${featureId}/`;
-                    });
-                });
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error loading features.');
+        fetch('/geo/features/', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!Array.isArray(data.results)) {
+                throw new Error('Expected an array but got: ' + JSON.stringify(data.results));
+            }
+            const featureList = document.getElementById('featureList');
+            data.results.forEach(feature => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${feature.properties.name}</td>
+                    <td>
+                        <button class="btn btn-primary edit-button" data-id="${feature.id}">Edit</button>
+                    </td>
+                `;
+                featureList.appendChild(row);
             });
+            document.querySelectorAll('.edit-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const featureId = this.getAttribute('data-id');
+                    window.location.href = `/geo/edit/${featureId}/`;
+                });
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error loading features.');
         });
+    });
     </script>
 </body>
 </html>
