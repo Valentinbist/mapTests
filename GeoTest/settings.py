@@ -13,8 +13,10 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
+import time
+import pytz
 
-load_dotenv("dev.env")
+load_dotenv("dev.env") # Load the environment variables from the .env file only needed for local development
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True # currently can be set in the .env but not considered here, since setting this up for production is not in the scope of this
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS').split(',')
 
@@ -47,6 +49,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
 ]
 
+# rest framework settings
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -57,7 +60,7 @@ REST_FRAMEWORK = {
 }
 
 
-
+# JWT settings
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=int(os.environ.get('JWT_ACCESS_TOKEN_LIFETIME', 5))),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=int(os.environ.get('JWT_REFRESH_TOKEN_LIFETIME',1))),
@@ -106,7 +109,7 @@ WSGI_APPLICATION = 'GeoTest.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
+# use postgis as the database backend
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
@@ -142,8 +145,14 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
+# one could add a .env TZ variable to set the timezone...
+system_timezone = time.tzname[0]
 
-TIME_ZONE = 'UTC'
+# If the system's timezone is valid (because on windows it might not be...), use it.
+if system_timezone in pytz.all_timezones:
+    TIME_ZONE = system_timezone
+else:
+    TIME_ZONE = 'UTC'
 
 USE_I18N = True
 

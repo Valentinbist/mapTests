@@ -35,7 +35,7 @@ class JWTGenerationTest(TestCase):
 
 
 
-# test the filter functionality
+# test the filter functionality (currently only bbox)
 class FilterTest(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -166,3 +166,6 @@ class CRUDTest(TestCase):
         # Verify the feature was deleted
         response = self.client.get(f'/geo/features/{self.feature_id}/')
         self.assertEqual(response.status_code, 404)
+
+
+# this is more some kind of prove of concept of testing then atually testing... But I would do it like this

@@ -8,7 +8,7 @@ class FeatureSerializer(serializers.ModelSerializer):
         fields = ('id', 'geometry', 'properties', 'type', 'feature_collection')
 
 class FeatureCollectionSerializer(serializers.ModelSerializer):
-    features = FeatureSerializer(many=True, read_only=True)
+    features = FeatureSerializer(many=True, read_only=True) # one could discuss not to show the features in the collection, since they can get very large, and then add a filter for the features using the collection ID
 
     class Meta:
         model = FeatureCollection
